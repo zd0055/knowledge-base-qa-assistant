@@ -198,28 +198,32 @@ if prompt := st.chat_input("请输入您的问题..."):
     with st.chat_message("user"):
         st.markdown(prompt)
     with st.chat_message("assistant"):
-        with st.spinner("思考中..."):
-            try:
-                result = rag_chain.query(prompt)
-                full_answer = result["answer"]
-                docs = result["sources"]
-                st.markdown(full_answer)
-                if docs:
-                    sources_for_msg = []
-                    with st.expander(":satellite: 参考来源", expanded=True):
-                        for i, doc in enumerate(docs, 1):
-                            source = doc.metadata.get("source", "未知")
-                            content_preview = doc.page_content[:200]
-                            sources_for_msg.append({"source": source, "content": doc.page_content})
-                            st.markdown(f"**[{i}]** {source}")
-                            st.markdown(content_preview + ("..." if len(doc.page_content) > 200 else ""))
-                    st.session_state.messages.append({"role": "assistant", "content": full_answer, "sources": sources_for_msg})
-                else:
-                    st.info("没有检索到相关文档，请先上传并索引文档")
-                    st.session_state.messages.append({"role": "assistant", "content": full_answer})
-            except Exception:
-                st.error("查询失败，请稍后重试")
-                logger.exception("query failed")
+        try:
+            docs, answer_gen = rag_chain.stream_answer(prompt)
+
+            if not docs:
+                full_answer = "没有检索到相关文档，请先上传并索引文档。"
+                st.info(full_answer)
+                st.session_state.messages.append({"role": "assistant", "content": full_answer})
+            else:
+                sources_for_msg = []
+                with st.expander(":satellite: 参考来源", expanded=True):
+                    for i, doc in enumerate(docs, 1):
+                        source = doc.metadata.get("source", "未知")
+                        sources_for_msg.append({"source": source, "content": doc.page_content})
+                        st.markdown(f"**[{i}]** {source}")
+                        st.caption(doc.page_content[:200] + ("..." if len(doc.page_content) > 200 else ""))
+
+                full_answer = st.write_stream(answer_gen)
+
+                st.session_state.messages.append({
+                    "role": "assistant",
+                    "content": full_answer,
+                    "sources": sources_for_msg,
+                })
+        except Exception:
+            st.error("查询失败，请稍后重试")
+            logger.exception("query failed")
 
 if not st.session_state.messages:
     st.info(

@@ -8,7 +8,6 @@ from typing import Any, Dict, List, Set
 from langchain_core.documents import Document
 
 from src.config_loader import resolve_path
-from src.embedding import EmbeddingManager
 from src.ingestion.loader import DocumentLoader
 from src.ingestion.splitter import TextSplitter
 
@@ -32,7 +31,6 @@ class IngestionPipeline:
             )
         )
         self.splitter = TextSplitter(config)
-        self.embedder = EmbeddingManager(config)
 
     def get_existing_ids(self, vector_store) -> Set[str]:
         """获取向量库中已有的文档 ID"""

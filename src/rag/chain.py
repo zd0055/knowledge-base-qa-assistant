@@ -82,6 +82,28 @@ class RAGChain:
     def get_generator(self) -> BaseGenerator:
         return self.generator
 
+    def stream_answer(self, question: str):
+        """Stream answer chunks for real-time UI display.
+
+        Returns:
+            (sources_list, answer_generator) tuple.
+            sources_list is empty when no docs found.
+        """
+        docs = self.retriever.retrieve(question)
+        logger.info("Streaming answer: retrieved %d relevant chunks", len(docs))
+
+        if not docs:
+            return [], (_ for _ in [])
+
+        prompt = build_prompt(question, docs)
+        messages = [{"role": "user", "content": prompt}]
+
+        def _generate():
+            for chunk in self.generator.stream(messages):
+                yield chunk
+
+        return docs, _generate()
+
     def __repr__(self) -> str:
         provider = self.config.get("llm", {}).get("provider", "deepseek")
         return f"RAGChain(provider={provider}, retriever={self.retriever})"
