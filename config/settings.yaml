@@ -1,0 +1,64 @@
+llm:
+  provider: ollama
+  max_daily_calls: 100
+  max_daily_tokens: 100000
+  deepseek:
+    model: deepseek-chat
+    temperature: 0.1
+    max_tokens: 4096
+    top_p: 0.9
+  ollama:
+    base_url: http://localhost:11434
+    model: qwen3:14b
+    temperature: 0.1
+    max_tokens: 4096
+    api_key: ollama
+embedding:
+  model_name: BAAI/bge-small-zh-v1.5
+  device: cpu
+  batch_size: 32
+  max_file_size_mb: 50
+  allowed_mime_types:
+  - application/pdf
+  - text/plain
+  - text/markdown
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  - text/csv
+vector_store:
+  persist_directory: data/chroma_db
+  top_k: 5
+  use_mmr: true
+  mmr_fetch_multiplier: 2
+  mmr_diversity: 0.3
+text_splitter:
+  chunk_size: 512
+  chunk_overlap: 128
+  separators:
+  - '
+
+
+    '
+  - '
+
+    '
+  - 。
+  - ！
+  - ？
+  - .
+  - ' '
+  - ''
+documents:
+  directory: data/documents
+  supported_extensions:
+  - .pdf
+  - .txt
+  - .md
+  - .docx
+  - .csv
+ui:
+  page_title: 知识库问答助手
+  chat_history_length: 50
+  show_technical_details: false
+logging:
+  level: INFO
+  format: '%(asctime)s | %(levelname)-8s | %(name)s | %(message)s'
