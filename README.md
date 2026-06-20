@@ -117,20 +117,31 @@
  | `vector_store.top_k` | 检索返回文档数 | `5` |
  | `vector_store.use_mmr` | 使用 MMR 多样性搜索 | `true` |
  | `text_splitter.chunk_size` | 文本分块大小 | `512` |
- | `text_splitter.chunk_overlap` | 分块重叠大小 | `128` |
- | `ui.show_technical_details` | 侧边栏是否显示技术配置 | `false` |
- 
- ## 身份认证
- 
- 系统默认关闭认证。启用后所有页面需要登录才能访问：
- 
- ```bash
- # Windows PowerShell
- $env:APP_AUTH_ENABLED="true"
- $env:APP_USERNAME="your-username"
- $env:APP_PASSWORD="your-password"
- streamlit run src/app.py
- ```
+| `text_splitter.chunk_overlap` | 分块重叠大小 | `128` |
+| `ui.show_technical_details` | 侧边栏是否显示技术配置 | `false` |
+| `auth.enabled` | 是否启用登录认证 | `true` |
+
+## 身份认证
+
+系统默认开启登录认证。启动应用后首先看到登录页面，输入正确的用户名和密码才能进入。
+
+认证通过 `config/settings.yaml` 中的 `auth.enabled` 控制：
+
+```yaml
+auth:
+  enabled: true          # true=需要登录，false=跳过登录
+```
+
+关闭登录后，退出登录按钮也不显示。
+
+用户名和密码通过环境变量配置，编辑 `.env` 文件：
+
+```ini
+APP_USERNAME=admin       # 登录用户名
+APP_PASSWORD=admin       # 登录密码
+```
+
+不设置则默认用户名密码均为 `admin`。
  
  ## 切换为 Ollama 本地模型
  

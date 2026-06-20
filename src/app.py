@@ -24,8 +24,10 @@ st.set_page_config(page_title="知识库问答助手", page_icon=":mag:", layout
 
 
 def check_auth():
-    """Simple auth check using env vars."""
-    auth_enabled = os.getenv("APP_AUTH_ENABLED", "false").lower() == "true"
+    """Simple auth check using config."""
+    config = load_config()
+    auth_enabled = config.get("auth", {}).get("enabled", True)
+    st.session_state.auth_enabled = auth_enabled
     if not auth_enabled:
         st.session_state.authenticated = True
         return
@@ -172,7 +174,7 @@ with st.sidebar:
 
     st.divider()
     st.caption("知识库问答助手 v1.0 | 本地私有 RAG 系统")
-    if st.button(":key: 退出登录"):
+    if st.session_state.get("auth_enabled", False) and st.button(":key: 退出登录"):
         st.session_state.authenticated = False
         st.rerun()
 
